@@ -1,0 +1,13 @@
+SELECT
+  concat(s.ServiceName, '_', t.ServiceName) as id,
+  s.ServiceName as source,
+  t.ServiceName as target,
+  AVG(t.Duration) / 1000 as detail__RESPONSE_TIME,
+  CAST(count() AS VARCHAR) as detail__REQUEST_COUNT,
+  CONCAT(CAST(sum((if(t.StatusCode = 'ERROR', 1, 0)) * 100) * COUNT() AS VARCHAR) , '%') AS detail__ERROR_RATE
+FROM
+  otel_traces s
+JOIN
+  otel_traces t ON s.SpanId = t.ParentSpanId AND s.TraceId = t.TraceId
+GROUP BY
+  s.ServiceName, t.ServiceName

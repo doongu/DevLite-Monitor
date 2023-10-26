@@ -1,0 +1,15 @@
+SELECT
+  ServiceName as id,
+  ServiceName as title,
+  AVG(Duration) / 1000 as mainstat,
+  CONCAT('req cnt ', CAST(count() AS VARCHAR)) as secondarystat,
+  CONCAT(CAST(sum((if(StatusCode = 'STATUS_CODE_ERROR', 1, 0)) * 100) / COUNT() AS VARCHAR) , '%') AS detail__ERROR_RATE,
+  sum(if(StatusCode == 'STATUS_CODE_UNSET', 1, 0)) / COUNT() AS arc__unset_rate,
+  sum(if(StatusCode == 'STATUS_CODE_OK', 1, 0)) / COUNT() AS arc__ok_rate,
+  sum(if(StatusCode == 'STATUS_CODE_ERROR', 1, 0)) / COUNT() AS arc__error_rate
+FROM 
+  otel_traces
+GROUP BY 
+  ServiceName
+
+
