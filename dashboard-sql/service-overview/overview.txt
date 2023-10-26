@@ -1,0 +1,60 @@
+WITH TotalCount AS (
+  SELECT 
+    COUNT(*) as AllRows 
+  FROM 
+    otel_traces
+) 
+SELECT 
+  ServiceName, 
+  CONCAT(
+    CAST(
+      ROUND(
+        AVG(Duration) / 1000, 
+        2
+      ) AS VARCHAR
+    ), 
+    'ms'
+  ) as Response_Times, 
+  CONCAT(
+    CAST(
+      ROUND(
+        (
+          COUNT(*) * 100.0 / (
+            SELECT 
+              AllRows 
+            FROM 
+              TotalCount
+          )
+        ), 
+        2
+      ) AS VARCHAR
+    ), 
+    '%'
+  ) AS Request_Rates, 
+  CONCAT(
+    CAST(
+      ROUND(
+        (
+          sum(
+            if(
+              StatusCode = 'STATUS_CODE_ERROR', 
+              1, 0
+            )
+          ) * 100.0 / COUNT(*)
+        ), 
+        2
+      ) AS VARCHAR
+    ), 
+    '%'
+  ) AS Error_Rates 
+FROM 
+  otel_traces 
+WHERE 
+  $__conditionalAll(
+    TraceId IN (${trace_id : singlequote}), 
+    $trace_id
+  ) 
+  AND $__timeFilter(Timestamp) 
+  AND ServiceName In (${serviceName : singlequote}) 
+GROUP BY 
+  ServiceName
