@@ -13,4 +13,4 @@
 
 ## 최종 결과물
 
-<p align="center"><img src="./gif_for_read-me/devlite monitor.gif" width="600" height="294"/></p>
+<p align="center"><img src="./devlite_monitor.gif" width="600" height="294"/></p>
