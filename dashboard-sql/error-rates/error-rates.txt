@@ -1,0 +1,22 @@
+SELECT 
+  $__timeInterval(Timestamp) as time, 
+  count(*) as ` `, 
+  ServiceName 
+FROM 
+  otel_traces 
+WHERE 
+  $__conditionalAll(
+    TraceId IN (${trace_id : singlequote}), 
+    $trace_id
+  ) 
+  AND $__timeFilter(Timestamp) 
+  AND ServiceName In (${serviceName : singlequote}) 
+  AND StatusCode = 'STATUS_CODE_ERROR' 
+  AND ServiceName != 'loadgenerator' 
+GROUP BY 
+  ServiceName, 
+  time 
+ORDER BY 
+  time ASC 
+LIMIT 
+  100000
