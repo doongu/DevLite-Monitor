@@ -1,0 +1,21 @@
+SELECT 
+  min(Timestamp) as timestamp, 
+  TraceId as `Trace Id`, 
+  argMin(ServiceName, Timestamp) as `Service Name`, 
+  sum(Duration)/ 1000000 as Duration 
+from 
+  otel_traces 
+WHERE 
+  $__conditionalAll(
+    TraceId IN (${trace_id : singlequote}), 
+    $trace_id
+  ) 
+  AND ServiceName In (${serviceName : singlequote}) 
+  AND ServiceName != 'loadgenerator' 
+  AND $__timeFilter(Timestamp) 
+GROUP BY 
+  TraceId 
+ORDER BY 
+  Duration DESC 
+LIMIT 
+  100
