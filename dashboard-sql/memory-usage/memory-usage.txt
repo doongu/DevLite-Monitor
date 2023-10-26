@@ -1,0 +1,17 @@
+SELECT 
+  toStartOfHour(TimeUnix) AS Time, 
+  concat(
+    MetricName, ' (', ResourceAttributes[ 'service.name' ], 
+    ')'
+  ) AS Metric, 
+  avg(Value) AS Avg_MEMORY_Usage 
+FROM 
+  otel_metrics_sum 
+WHERE 
+  MetricName LIKE '%memory%' 
+GROUP BY 
+  Time, 
+  Metric 
+ORDER BY 
+  Time, 
+  Metric;
