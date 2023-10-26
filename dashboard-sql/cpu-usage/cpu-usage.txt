@@ -1,0 +1,17 @@
+SELECT 
+  toStartOfHour(TimeUnix) AS Time, 
+  concat(
+    MetricName, ' (', ResourceAttributes[ 'service.name' ], 
+    ')'
+  ) AS Metric, 
+  avg(Value) AS Avg_CPU_Usage 
+FROM 
+  otel_metrics_gauge 
+WHERE 
+  MetricName LIKE '%cpu%' 
+GROUP BY 
+  Time, 
+  Metric 
+ORDER BY 
+  Time, 
+  Metric;
