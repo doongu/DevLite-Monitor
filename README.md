@@ -6,5 +6,11 @@
 
 ## 팀 내 역활 🧑‍
 - 프로젝트 기획
-- Opentelemetry pipline 구성
-- 데이터를 시각화 하기 위한 그라파나 SQL 구문 작성
+-  Tracing, Metric 을 통합 관측하기 위해 OpenTelemetry 파이프라인 개발
+- ClickHouse 를 통해 Tracing, Metric 일괄 저장
+- Grafana Dashboard 의 구성 및 SQL 구문 작성
+
+
+## 최종 결과물
+
+<p align="center"><img src="./gif_for_read-me/lms_problem.gif" width="600" height="294"/></p>
