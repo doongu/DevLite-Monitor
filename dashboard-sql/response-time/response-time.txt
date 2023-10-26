@@ -1,0 +1,25 @@
+SELECT 
+  $__timeInterval(Timestamp) as time, 
+  ServiceName, 
+  AVG(Duration) as ` ` 
+FROM 
+  otel_traces 
+WHERE 
+  $__conditionalAll(
+    TraceId IN (${trace_id : singlequote}), 
+    $trace_id
+  ) 
+  AND $__timeFilter(Timestamp) 
+  AND (
+    Timestamp >= $__fromTime 
+    AND Timestamp <= $__toTime
+  ) 
+  AND ServiceName In (${serviceName : singlequote}) 
+  AND ServiceName != 'loadgenerator' 
+GROUP BY 
+  time, 
+  ServiceName 
+ORDER BY 
+  time ASC 
+LIMIT 
+  100000
