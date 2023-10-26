@@ -1,0 +1,32 @@
+WITH ServiceDurations AS (
+  SELECT 
+    ServiceName, 
+    Duration 
+  FROM 
+    otel_traces
+), 
+ServiceStats AS (
+  SELECT 
+    ServiceName, 
+    AVG(Duration) AS Avg_Duration 
+  FROM 
+    ServiceDurations 
+  GROUP BY 
+    ServiceName
+) 
+SELECT 
+  s.ServiceName as ServiceName, 
+  Avg_Duration, 
+  SQRT(
+    SUM(
+      POW(d.Duration - Avg_Duration, 2)
+    ) / COUNT(*)
+  ) AS StdDev_Duration 
+FROM 
+  ServiceDurations d 
+  JOIN ServiceStats s ON d.ServiceName = s.ServiceName 
+GROUP BY 
+  s.ServiceName, 
+  Avg_Duration 
+ORDER BY 
+  s.ServiceName;
