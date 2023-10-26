@@ -1,0 +1,50 @@
+WITH RequestCounts AS (
+  SELECT 
+    toStartOfMinute(`Timestamp`) AS time, 
+    ServiceName, 
+    COUNT(*) AS RequestCount 
+  FROM 
+    otel_traces 
+  WHERE 
+    $__conditionalAll(
+      TraceId IN (${trace_id : singlequote}), 
+      $trace_id
+    ) 
+    AND $__timeFilter(Timestamp) 
+    AND ServiceName IN (${serviceName : singlequote}) 
+  GROUP BY 
+    ServiceName, 
+    time
+), 
+TotalRequestCounts AS (
+  SELECT 
+    toStartOfMinute(`Timestamp`) AS time, 
+    COUNT(*) AS TotalRequestCount 
+  FROM 
+    otel_traces 
+  WHERE 
+    $__conditionalAll(
+      TraceId IN (${trace_id : singlequote}), 
+      $trace_id
+    ) 
+    AND $__timeFilter(Timestamp) 
+  GROUP BY 
+    time
+) 
+SELECT 
+  rc.time, 
+  rc.ServiceName, 
+  ROUND(
+    (
+      rc.RequestCount * 100.0 / trc.TotalRequestCount
+    ), 
+    5
+  ) AS RequestPercentage 
+FROM 
+  RequestCounts rc 
+  JOIN TotalRequestCounts trc ON rc.time = trc.time 
+ORDER BY 
+  rc.time ASC, 
+  rc.ServiceName 
+LIMIT 
+  100000
